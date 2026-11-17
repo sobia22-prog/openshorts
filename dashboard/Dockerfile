@@ -36,4 +36,6 @@ FROM nginx:alpine@sha256:713fc2ebfd92e8217db451477182ee91944b123d2b1ee9fd5a8c6e9
 COPY --from=build /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off; worker_processes 2;"]
+RUN sed -i "s/worker_processes.*/worker_processes 2;/" /etc/nginx/nginx.conf \
+    && rm -f /docker-entrypoint.d/30-tune-worker-processes.sh
+CMD ["sh", "-c", "sed -i \"s/listen 80/listen ${PORT:-80}/g\" /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
